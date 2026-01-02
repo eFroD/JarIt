@@ -21,7 +21,7 @@ coverage.xml
 
 .DS_Store
 .vscode
-
+.venv
 frontend/node_modules
 frontend/dist
 frontend/.svelte-kit
