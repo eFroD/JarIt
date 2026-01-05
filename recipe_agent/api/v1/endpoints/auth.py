@@ -3,6 +3,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from recipe_agent.db.database import get_db
+from recipe_agent.api.v1.endpoints.users import (
+    User,
+    get_current_user_optional,
+    get_current_user,
+    admin_user_required,
+)
 from recipe_agent.core.security import create_access_token
 from recipe_agent.auth.schemas import UserCreate, UserResponse, Token
 from recipe_agent.auth.service import create_user, authenticate_user
@@ -16,9 +22,14 @@ router = APIRouter()
 @router.post(
     "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
     """Register a new user"""
-    return create_user(db, user)
+
+    return create_user(db, user, current_user)
 
 
 @router.post("/login", response_model=Token)
@@ -40,29 +51,3 @@ def login(
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-# @router.get("/me", response_model=UserResponse)
-# def get_current_user(
-#    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-# ):
-#    """Get current authenticated user"""
-#    credentials_exception = HTTPException(
-#        status_code=status.HTTP_401_UNAUTHORIZED,
-#        detail="Could not validate credentials",
-#        headers={"WWW-Authenticate": "Bearer"},
-#    )##
-#
-#    payload = decode_token(token)
-#    if payload is None:
-#        raise credentials_exception##
-#
-#    username: str = payload.get("sub")
-#    if username is None:
-#        raise credentials_exception##
-#
-#    user = get_user_by_username(db, username)
-#    if user is None:
-#        raise credentials_exception##
-#
-#    return user#

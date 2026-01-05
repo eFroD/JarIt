@@ -1,8 +1,12 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from recipe_agent.core.security import get_password_hash, verify_password
-from ..db.models.users import User
+from ..db.models.users import User, UserRole
 from .schemas import UserCreate
+import os
+
+ALLOW_REGISTRATION = os.getenv("ALLOW_REGISTRATION")
 
 
 def get_user_by_email(db: Session, email: str):
@@ -13,7 +17,9 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 
-def create_user(db: Session, user: UserCreate):
+def create_user(db: Session, user: UserCreate, current_user: User | None = None):
+    count = user_count(db)
+
     # Check if user exists
     if get_user_by_email(db, user.email):
         raise HTTPException(
@@ -25,10 +31,19 @@ def create_user(db: Session, user: UserCreate):
         )
 
     # Create new user
+    if count == 0:
+        user.role = UserRole.ADMIN
+    elif ALLOW_REGISTRATION != "true":
+        if not current_user or current_user.role != UserRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Registration is disabled. Admin privileges required to create new users.",
+            )
     db_user = User(
         email=user.email,
         username=user.username,
         hashed_password=get_password_hash(user.password),
+        role=UserRole(user.role),
     )
     db.add(db_user)
     db.commit()
@@ -43,3 +58,7 @@ def authenticate_user(db: Session, username: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
+
+async def user_count(db: Session) -> int:
+    return db.query(func.count(User.id)).scalar()

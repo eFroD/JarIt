@@ -3,9 +3,13 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime
 from recipe_agent.db.database import get_db
-from recipe_agent.db.models.users import User
+from recipe_agent.db.models.users import User, UserRole
 from recipe_agent.db.models.api_keys import APIKey
-from recipe_agent.core.security import oauth2_scheme, decode_token
+from recipe_agent.core.security import (
+    oauth2_scheme,
+    decode_token,
+    oauth2_scheme_optional,
+)
 from recipe_agent.auth.service import get_user_by_username
 
 
@@ -24,12 +28,40 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    token: str = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)
+) -> User | None:
+    if not token:
+        return None
+
+    try:
+        payload = decode_token(token)
+        if not payload:
+            return None
+
+        username = payload.get("sub")
+        user = get_user_by_username(db, username)
+        if not user:
+            return None
+
+        return user
+    except Exception:
+        return None
+
+
+async def admin_user_required(
+    current_user: User | None = Depends(get_current_user_optional),
+):
+    if not current_user or current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin privileges required")
+    return current_user
+
+
 router = APIRouter()
 
 
-# Schemas
 class APIKeyCreate(BaseModel):
-    service_name: str  # "mealie", "spotify", "notion", etc.
+    service_name: str
     api_key: str
     base_url: str | None = None
 

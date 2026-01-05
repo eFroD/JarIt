@@ -1,7 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum
+from enum import Enum
 from sqlalchemy.sql import func
 from recipe_agent.db.database import Base
 from sqlalchemy.orm import relationship
+
+
+class UserRole(Enum):
+    ADMIN = "ADMIN"
+    USER = "USER"
 
 
 class User(Base):
@@ -11,6 +17,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    role = Column(
+        SQLEnum(UserRole, name="user_role_enum"), default=UserRole.USER, nullable=False
+    )
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

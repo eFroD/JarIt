@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field
+from enum import Enum
 from typing import Optional
 from datetime import datetime
+from recipe_agent.db.models.users import UserRole
 
 
 class UserBase(BaseModel):
@@ -10,6 +12,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
+    role: UserRole = UserRole.USER
 
 
 class UserResponse(UserBase):
