@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr, Field
-from enum import Enum
 from typing import Optional
 from datetime import datetime
 from recipe_agent.db.models.users import UserRole

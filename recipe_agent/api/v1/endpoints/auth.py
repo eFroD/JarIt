@@ -3,12 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from recipe_agent.db.database import get_db
-from recipe_agent.api.v1.endpoints.users import (
-    User,
-    get_current_user_optional,
-    get_current_user,
-    admin_user_required,
-)
+from recipe_agent.api.v1.endpoints.users import User, get_current_user_optional
 from recipe_agent.core.security import create_access_token
 from recipe_agent.auth.schemas import UserCreate, UserResponse, Token
 from recipe_agent.auth.service import create_user, authenticate_user

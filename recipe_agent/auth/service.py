@@ -19,7 +19,26 @@ def get_user_by_username(db: Session, username: str):
 
 def create_user(db: Session, user: UserCreate, current_user: User | None = None):
     count = user_count(db)
+    print(f"User count: {count}")
+    if count == 0:
+        db_role = UserRole.ADMIN
 
+    elif ALLOW_REGISTRATION == "true":
+        if current_user and current_user.role == UserRole.ADMIN:
+            db_role = UserRole(user.role)
+        else:
+            db_role = UserRole.USER
+
+
+    elif current_user and current_user.role == UserRole.ADMIN:
+        db_role = UserRole(user.role)
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Registration is disabled. Admin privileges required to create new users.",
+            )
+    
     # Check if user exists
     if get_user_by_email(db, user.email):
         raise HTTPException(
@@ -30,20 +49,11 @@ def create_user(db: Session, user: UserCreate, current_user: User | None = None)
             status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken"
         )
 
-    # Create new user
-    if count == 0:
-        user.role = UserRole.ADMIN
-    elif ALLOW_REGISTRATION != "true":
-        if not current_user or current_user.role != UserRole.ADMIN:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Registration is disabled. Admin privileges required to create new users.",
-            )
     db_user = User(
         email=user.email,
         username=user.username,
         hashed_password=get_password_hash(user.password),
-        role=UserRole(user.role),
+        role=db_role.value,
     )
     db.add(db_user)
     db.commit()
@@ -60,5 +70,5 @@ def authenticate_user(db: Session, username: str, password: str):
     return user
 
 
-async def user_count(db: Session) -> int:
+def user_count(db: Session) -> int:
     return db.query(func.count(User.id)).scalar()
