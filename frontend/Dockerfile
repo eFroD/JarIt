@@ -8,7 +8,8 @@ RUN npm ci
 
 COPY . .
 
-ARG VITE_API_BASE=http://localhost:8000/api/v1
+# Use relative path - works everywhere!
+ARG VITE_API_BASE=/api/v1
 ENV VITE_API_BASE=${VITE_API_BASE}
 
 RUN npx svelte-kit sync
