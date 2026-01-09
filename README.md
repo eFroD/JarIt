@@ -11,7 +11,7 @@ JarIt is an intelligent application that automatically extracts structured recip
 
 ## Features
 
-- **Multi-Platform Support** - Extract recipes from YouTube, TikTok, Instagram, and 1500+ video platforms via yt-dlp
+- **Multi-Platform Support** - Extract recipes from YouTube, TikTok, Instagram, and more via yt-dlp
 - **AI-Powered Extraction** - Uses Pydantic AI with support for multiple LLM providers:
   - Google Gemini (default)
   - OpenAI GPT Models
@@ -29,16 +29,14 @@ JarIt is an intelligent application that automatically extracts structured recip
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-  - [Quick Start (Docker)](#quick-start-docker)
+  - [Quick Start (Docker)](#quick-start-docker-compose)
+  - [Without Cloning the Repo](#without-cloning-the-repo)
+  - [Build Docker Images Locally](#build-docker-images-locally)
+  - [Development Setup](#development-setup)
 - [Configuration](#configuration)
   - [Obtaining Mealie API Key](#obtaining-mealie-api-key)
 - [Usage](#usage)
-- [Architecture](#architecture)
-- [Development](#development)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Prerequisites
 
@@ -366,3 +364,9 @@ Admins can manage users:
 2. **View all users** and their roles
 3. **Create new users** manually
 4. **Delete users**
+
+## Contributing
+I think the app has much more potential, than what it can do now. Check the [Issues](https://github.com/eFroD/jarit/issues) if you want to see what is going on. I also think of the following enhancements:
++ Integrate new recipe databases beyond mealie. The app is designed in a way, that you can write your own integrator. The database can store multiple api keys, identified by a service name.
++ Support for more LLM providers and better self-hosted model support. I did not test any of the self-hosted functionalities yet. Any insight is greatly appreciated.
++ And more! If you have any Idea, feel free to post an issue.
