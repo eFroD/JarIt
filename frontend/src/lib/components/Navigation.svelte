@@ -3,7 +3,7 @@
   import { user, authToken } from '$lib/store';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  
+
   let mobileOpen = false;
   function toggleMobile() { mobileOpen = !mobileOpen; }
   async function handleLogout() {
@@ -37,7 +37,7 @@
         {#if $user}
           <span class="text-sm text-gray-700">Welcome, <strong>{$user.username}</strong></span>
           {#if $user.role === 'ADMIN'}
-            <a href="/admin" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 text-sm">Admin</a>
+            <a href="/admin" class="px-4 py-2 bg-cyan-600 !text-white rounded-lg hover:bg-cyan-700 text-sm no-underline">Admin Panel</a>
           {/if}
           <button on:click={handleLogout} class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">Logout</button>
         {/if}
@@ -57,7 +57,7 @@
         <div class="px-4 py-4 space-y-2">
           <span class="text-sm text-gray-700 block">Welcome, <strong>{$user.username}</strong></span>
           {#if $user.role === 'ADMIN'}
-            <a href="/admin" on:click={toggleMobile} class="block px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 text-sm">Admin Panel</a>
+            <a href="/admin" on:click={toggleMobile} class="block px-4 py-2 bg-cyan-600 !text-white rounded-lg hover:bg-cyan-700 text-sm no-underline">Admin Panel</a>
           {/if}
           <button on:click={handleLogout} class="w-full text-left px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">Logout</button>
         </div>
