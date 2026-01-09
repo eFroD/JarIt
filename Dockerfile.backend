@@ -2,25 +2,28 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    ffmpeg \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
 COPY pyproject.toml uv.lock ./
 
-# Install uv for faster package management
 RUN pip install uv
 
-# Install dependencies
 RUN uv sync
 
-# Copy application code
 COPY . .
 
-# Expose port
+# Update yt-dlp on startup
+RUN echo '#!/bin/bash\n\
+echo "Updating yt-dlp..."\n\
+uv sync --upgrade-package yt-dlp\n\
+echo "Starting application..."\n\
+exec "$@"' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+
 EXPOSE 8000
 
-# Development command (will be overridden in docker-compose)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
